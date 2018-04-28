@@ -13,7 +13,7 @@ InputManager::~InputManager()
 
 void InputManager::Initialize()
 {
-	for (int i = 0; i<256; ++i)
+	for (int i = 0; i < 256; ++i)
 	{
 		m_Keys[i] = false;
 	}

@@ -1,10 +1,5 @@
 #pragma once
 
-static const bool FULL_SCREEN = false;
-static const bool VSYNC_ENABLED = true;
-static const float SCREEN_DEPTH = 1000.0f;
-static const float SCREEN_NEAR = 0.1f;
-
 class SystemApp
 {
 public:
@@ -15,7 +10,7 @@ public:
 	bool Initialize();
 	void Shutdown();
 	void Run();
-
+	
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 
 private:
