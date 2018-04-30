@@ -32,7 +32,7 @@ bool SystemApp::Initialize()
 	}
 
 	// m_Input 객체 초기화
-	m_Input->Initialize();
+	m_Input->Initialize(m_Hinstance, m_Hwnd, ScreenWidth, ScreenHeight);
 
 
 	m_Graphics = new GraphicsManager;
@@ -88,7 +88,12 @@ void SystemApp::Run()
 
 bool SystemApp::Frame()
 {
-	if (m_Input->IsKeyDown(VK_ESCAPE))
+	if (!m_Input->Frame())
+	{
+		return false;
+	}
+
+	if (m_Input->IsEscapePressed())
 	{
 		return false;
 	}
@@ -103,14 +108,14 @@ LRESULT CALLBACK SystemApp::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, 
 		// 키보드가 눌러졌는가 처리
 	case WM_KEYDOWN:
 	{
-		m_Input->KeyDown(static_cast<unsigned int>(wparam));
+		//m_Input->KeyDown(static_cast<unsigned int>(wparam));
 		return 0;
 	}
 
 	// 키보드가 떨어졌는가 처리
 	case WM_KEYUP:
 	{
-		m_Input->KeyUp(static_cast<unsigned int>(wparam));
+		//m_Input->KeyUp(static_cast<unsigned int>(wparam));
 		return 0;
 	}
 

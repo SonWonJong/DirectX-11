@@ -17,7 +17,7 @@ bool ColorShader::Initialize(ID3D11Device* InDevice, HWND InHwnd)
 	return InitializeShader(InDevice, InHwnd, L"../DirectX11_FrameWork/color.vs", L"../DirectX11_FrameWork/color.ps");
 }
 
-bool ColorShader::InitializeShader(ID3D11Device* InDevice, HWND InHwnd, WCHAR* InVertexFilename, WCHAR* InPixelFilename)
+bool ColorShader::InitializeShader(ID3D11Device* InDevice, HWND InHwnd, const WCHAR* InVertexFilename, const WCHAR* InPixelFilename)
 {
 	ID3D10Blob* ErrorMessage = nullptr;
 
@@ -222,7 +222,7 @@ void ColorShader::RenderShader(ID3D11DeviceContext* IndeviceContext, int InIndex
 }
 
 
-void ColorShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
+void ColorShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const WCHAR* shaderFilename)
 {
 	// 에러 메시지를 출력창에 표시합니다.
 	OutputDebugStringA(reinterpret_cast<const char*>(errorMessage->GetBufferPointer()));
