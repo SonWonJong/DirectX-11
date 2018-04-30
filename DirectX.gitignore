@@ -1,5 +1,10 @@
 # Created by https://www.gitignore.io/api/c++,visualstudio
 
+### Project ###
+DirectX11_FrameWork/Debug/
+DirectX11_FrameWork/DirectX11_FrameWork/Debug/
+DirectX11_FrameWork/.vs/
+
 ### C++ ###
 # Prerequisites
 *.d
