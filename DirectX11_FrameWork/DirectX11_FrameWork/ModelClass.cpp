@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "modelclass.h"
-
+#include "BaseTexture.h"
 
 ModelClass::ModelClass()
 {
@@ -17,19 +17,31 @@ ModelClass::~ModelClass()
 }
 
 
-bool ModelClass::Initialize(ID3D11Device* device)
+bool ModelClass::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* InDeviceContext, const char* InTextureFileName)
 {
-	// 정점 및 인덱스 버퍼를 초기화합니다.
-	return InitializeBuffers(device);
+	// 정점 및 인덱스 버퍼를 초기화
+	if (!InitializeBuffers(InDevice))
+		return false;
+
+	// 이 모델의 텍스처 로드
+	return LoadTexture(InDevice, InDeviceContext, InTextureFileName);
 }
 
 
 void ModelClass::Shutdown()
 {
-	// 버텍스 및 인덱스 버퍼를 종료합니다.
+	// 모델의 텍스처 반환
+	ReleaseTexture();
+
+	// 버텍스 및 인덱스 버퍼를 종료
 	ShutdownBuffers();
 }
 
+
+ID3D11ShaderResourceView* ModelClass::GetTexture()
+{
+	return m_Texture->GetTexture();
+}
 
 void ModelClass::Render(ID3D11DeviceContext* deviceContext)
 {
@@ -60,15 +72,15 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 	if (!Indices)
 		return false;
 
-	// 정점 배열에 데이터를 설정
+	// 정점 배열에 값을 설정합니다.
 	Vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);  // Bottom left.
-	Vertices[0].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	Vertices[0].texture = XMFLOAT2(0.0f, 1.0f);
 
 	Vertices[1].position = XMFLOAT3(0.0f, 1.0f, 0.0f);  // Top middle.
-	Vertices[1].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	Vertices[1].texture = XMFLOAT2(0.5f, 0.0f);
 
 	Vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);  // Bottom right.
-	Vertices[2].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	Vertices[2].texture = XMFLOAT2(1.0f, 1.0f);
 
 	// 인덱스 배열의 값을 설정
 	Indices[0] = 0;  // Bottom left.
@@ -160,4 +172,25 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
     // 정점 버퍼로 그릴 기본형을 설정합니다. 여기서는 삼각형으로 설정합니다.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+bool ModelClass::LoadTexture(ID3D11Device* InDevice, ID3D11DeviceContext* InDeviceContext, const char* InFileName)
+{
+	m_Texture = new BaseTexture;
+	if (!m_Texture)
+	{
+		return false;
+	}
+
+	return m_Texture->Initialize(InDevice, InDeviceContext, InFileName);
+}
+
+void ModelClass::ReleaseTexture()
+{
+	if (m_Texture)
+	{
+		m_Texture->Shutdown();
+		delete m_Texture;
+		m_Texture = nullptr;
+	}
 }

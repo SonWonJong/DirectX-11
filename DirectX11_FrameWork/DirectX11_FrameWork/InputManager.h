@@ -2,9 +2,16 @@
 
 class InputManager
 {
-public:
+private:
 	InputManager();
 	~InputManager();
+
+public:
+	static InputManager& GetInstance() 
+	{
+		static InputManager Instance;
+		return Instance;
+	}
 
 	bool Initialize(HINSTANCE, HWND, int, int);
 	void Shutdown();
@@ -23,6 +30,7 @@ public:
 	bool IsPgUpPressed();
 	bool IsPgDownPressed();
 
+	DIMOUSESTATE GetMouseState() const { return m_MouseState; }
 private:
 	bool ReadKeyboard();
 	bool ReadMouse();

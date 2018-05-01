@@ -121,6 +121,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BaseTexture.h" />
     <ClInclude Include="CameraClass.h" />
     <ClInclude Include="ColorShader.h" />
     <ClInclude Include="DirectXManager.h" />
@@ -130,8 +131,10 @@
     <ClInclude Include="ModelClass.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SystemApp.h" />
+    <ClInclude Include="TextureShader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BaseTexture.cpp" />
     <ClCompile Include="CameraClass.cpp" />
     <ClCompile Include="ColorShader.cpp" />
     <ClCompile Include="DirectX11Main.cpp" />
@@ -141,10 +144,13 @@
     <ClCompile Include="ModelClass.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="SystemApp.cpp" />
+    <ClCompile Include="TextureShader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="color.ps" />
-    <None Include="color.vs" />
+    <None Include="shader\color.ps" />
+    <None Include="shader\color.vs" />
+    <None Include="shader\Texture.ps" />
+    <None Include="shader\Texture.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

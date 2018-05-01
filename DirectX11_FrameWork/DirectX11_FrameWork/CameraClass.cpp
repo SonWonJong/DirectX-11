@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 #include "cameraclass.h"
-
+#include "InputManager.h"
 
 CameraClass::CameraClass()
 {
@@ -49,6 +49,12 @@ XMFLOAT3 CameraClass::GetRotation()
 
 void CameraClass::Render()
 {
+	if (InputManager::GetInstance().IsRightPressed())
+	{
+		auto MouseState = InputManager::GetInstance().GetMouseState();
+		m_Rotation.y -= float(MouseState.lX) * 0.00001f;
+		m_Rotation.x -= float(MouseState.lY) * 0.00001f;
+	}
 	float Yaw, Pitch, Roll;
 	
 	XMFLOAT3 Up(0.0f, 1.0f, 0.0f);

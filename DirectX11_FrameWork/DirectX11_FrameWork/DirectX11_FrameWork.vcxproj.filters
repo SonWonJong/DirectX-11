@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{8da9a324-b1fd-4bb1-b528-847dc04efdb8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DxHeader.h">
@@ -40,6 +43,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ColorShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseTexture.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureShader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -71,9 +80,25 @@
     <ClCompile Include="ColorShader.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="BaseTexture.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="color.ps" />
-    <None Include="color.vs" />
+    <None Include="shader\color.ps">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\color.vs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\Texture.ps">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shader\Texture.vs">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

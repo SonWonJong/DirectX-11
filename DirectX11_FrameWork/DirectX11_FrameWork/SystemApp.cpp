@@ -25,14 +25,8 @@ bool SystemApp::Initialize()
 	// 윈도우 생성 초기화
 	InitializeWindows(ScreenWidth, ScreenHeight);
 
-	m_Input = new InputManager;
-	if (!m_Input)
-	{
-		return false;
-	}
-
 	// m_Input 객체 초기화
-	m_Input->Initialize(m_Hinstance, m_Hwnd, ScreenWidth, ScreenHeight);
+	InputManager::GetInstance().Initialize(m_Hinstance, m_Hwnd, ScreenWidth, ScreenHeight);
 
 
 	m_Graphics = new GraphicsManager;
@@ -53,11 +47,7 @@ void SystemApp::Shutdown()
 		m_Graphics = 0;
 	}
 
-	if (m_Input)
-	{
-		delete m_Input;
-		m_Input = 0;
-	}
+	InputManager::GetInstance().Shutdown();
 
 	ShutdownWindows();
 }
@@ -88,12 +78,12 @@ void SystemApp::Run()
 
 bool SystemApp::Frame()
 {
-	if (!m_Input->Frame())
+	if (!InputManager::GetInstance().Frame())
 	{
 		return false;
 	}
 
-	if (m_Input->IsEscapePressed())
+	if (InputManager::GetInstance().IsEscapePressed())
 	{
 		return false;
 	}

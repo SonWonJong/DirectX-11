@@ -166,6 +166,12 @@ void InputManager::ProcessInput()
 	m_MouseX += m_MouseState.lX;
 	m_MouseY += m_MouseState.lY;
 
+	if (m_MouseState.lX > 1)
+	{
+		int j = 0;
+		j = 11;
+	}
+
 	// 마우스 위치가 화면 너비 또는 높이를 초과하지 않는지 확인한다.
 	if (m_MouseX < 0) 
 		m_MouseX = 0;

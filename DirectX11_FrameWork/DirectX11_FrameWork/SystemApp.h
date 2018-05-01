@@ -23,7 +23,6 @@ private:
 	HINSTANCE m_Hinstance;
 	HWND m_Hwnd;
 
-	class InputManager* m_Input = nullptr;
 	class GraphicsManager* m_Graphics = nullptr;
 };
 

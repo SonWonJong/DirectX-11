@@ -14,7 +14,7 @@ ColorShader::~ColorShader()
 bool ColorShader::Initialize(ID3D11Device* InDevice, HWND InHwnd)
 {
 	// 정점 및 픽셀 쉐이더를 초기화.
-	return InitializeShader(InDevice, InHwnd, L"../DirectX11_FrameWork/color.vs", L"../DirectX11_FrameWork/color.ps");
+	return InitializeShader(InDevice, InHwnd, L"../DirectX11_FrameWork/Shader/color.vs", L"../DirectX11_FrameWork/Shader/color.ps");
 }
 
 bool ColorShader::InitializeShader(ID3D11Device* InDevice, HWND InHwnd, const WCHAR* InVertexFilename, const WCHAR* InPixelFilename)
