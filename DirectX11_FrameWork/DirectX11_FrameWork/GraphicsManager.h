@@ -28,5 +28,7 @@ private:
 	class ModelClass* m_Model3 = nullptr;
 	class ColorShader* m_ColorShader = nullptr;
 	class TextureShader* m_TextureShader = nullptr;
+	class LightClass* m_LightClass;
+	class LightShader* m_LightShader;
 };
 

@@ -6,6 +6,14 @@ private:
 	{
 		XMFLOAT3 position;
 		XMFLOAT2 texture;
+		XMFLOAT3 normal;
+	};
+
+	struct ModelType
+	{
+		float x, y, z;
+		float tu, tv;
+		float nx, ny, nz;
 	};
 
 public:
@@ -13,7 +21,7 @@ public:
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, const char*);
+	bool Initialize(ID3D11Device*, const WCHAR*, const WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
@@ -25,9 +33,11 @@ private:
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
 
-	bool LoadTexture(ID3D11Device*, ID3D11DeviceContext*, const char*);
+	bool LoadTexture(ID3D11Device*, const WCHAR*);
 	void ReleaseTexture();
 
+	bool LoadModel(const WCHAR*);
+	void ReleaseModel();
 private:
 	ID3D11Buffer * m_VertexBuffer = nullptr;
 	ID3D11Buffer* m_IndexBuffer = nullptr;
@@ -35,5 +45,6 @@ private:
 
 	int m_VertexCount = 0;
 	int m_IndexCount = 0;
+	ModelType* m_model = nullptr;
 };
 

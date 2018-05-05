@@ -15,6 +15,7 @@ public:
 	BaseTexture();
 	~BaseTexture();
 
+	bool Initialize(ID3D11Device*, const WCHAR*);
 	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, const char*);
 	void Shutdown();
 

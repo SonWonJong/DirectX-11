@@ -13,6 +13,16 @@ BaseTexture::~BaseTexture()
 }
 
 
+bool BaseTexture::Initialize(ID3D11Device * InDevice, const WCHAR* InFileName)
+{
+	// 텍스처 파일로부터 읽어온다.
+	if (FAILED(CreateDDSTextureFromFile(InDevice, InFileName, nullptr, &m_TextureView)))
+	{
+		return false;
+	}
+	return true;
+}
+
 bool BaseTexture::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* InDeviceContext, const char* InFileName)
 {
 	int Width = 0;

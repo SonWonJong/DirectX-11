@@ -5,6 +5,8 @@
 #include "ModelClass.h"
 #include "ColorShader.h"
 #include "TextureShader.h"
+#include "LightClass.h"
+#include "LightShader.h"
 
 GraphicsManager::GraphicsManager()
 {
@@ -29,7 +31,7 @@ bool GraphicsManager::Initialize(int InScreenWidth, int InScreenHeight, HWND InH
 		return false;
 
 	// 카메라 포지션 설정
-	m_Camera->SetPosition(0.0f, 0.0f, -15.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
 
 	// m_Model 객체 생성
 	m_Model = new ModelClass;
@@ -37,11 +39,35 @@ bool GraphicsManager::Initialize(int InScreenWidth, int InScreenHeight, HWND InH
 		return false;
 
 	// m_Model 객체 초기화
-	if (!m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../DirectX11_FrameWork/Image/stone01.tga"))
+	if (!m_Model->Initialize(m_Direct3D->GetDevice(), L"../DirectX11_FrameWork/Model/cube.txt", L"../DirectX11_FrameWork/Image/seafloor.dds"))
 	{
 		MessageBox(InHwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
+
+	// TextureShader 객체 생성
+	m_LightShader = new LightShader;
+	if (!m_LightShader)
+	{
+		return false;
+	}
+
+	if (!m_LightShader->Initialize(m_Direct3D->GetDevice(), InHwnd))
+	{
+		return false;
+	}
+
+	m_LightClass = new LightClass;
+	if (m_LightClass == nullptr)
+	{
+		return false;
+	}
+
+	m_LightClass->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	m_LightClass->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_LightClass->SetDirection(0.0f, 0.0f, 1.0f);
+	m_LightClass->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_LightClass->SetSpecularPower(32.0f);
 
 	// m_ColorShader 객체 생성
 	m_ColorShader = new ColorShader;
@@ -74,6 +100,21 @@ bool GraphicsManager::Initialize(int InScreenWidth, int InScreenHeight, HWND InH
 
 void GraphicsManager::Shutdown()
 {
+
+	if (m_LightClass)
+	{
+		delete m_LightClass;
+		m_LightClass = nullptr;
+	}
+
+	// m_ColorShader 객체 반환
+	if (m_LightShader)
+	{
+		m_LightShader->Shutdown();
+		delete m_LightShader;
+		m_LightShader = nullptr;
+	}
+
 	if (m_TextureShader)
 	{
 		m_TextureShader->Shutdown();
@@ -131,6 +172,16 @@ bool GraphicsManager::Render()
 	m_Camera->GetViewMatrix(ViewMatrix);
 	m_Direct3D->GetProjectionMatrix(ProjectionMatrix);
 
+
+	static float rotation = 0.0f;
+
+	rotation += 0.01f;
+	if (rotation > 360.0f)
+	{
+		rotation -= 360.0f;
+	}
+	WorldMatrix = XMMatrixRotationY(rotation);
+
 	// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비합니다.
 	m_Model->Render(m_Direct3D->GetDeviceContext());
 
@@ -140,7 +191,15 @@ bool GraphicsManager::Render()
 	//	return false;
 	//}
 
-	if (!m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), WorldMatrix, ViewMatrix, ProjectionMatrix, m_Model->GetTexture()))
+	//if (!m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), WorldMatrix, ViewMatrix, ProjectionMatrix, m_Model->GetTexture()))
+	//{
+	//	return false;
+	//}
+
+	if (!m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount()
+		, WorldMatrix, ViewMatrix, ProjectionMatrix, m_Model->GetTexture()
+		, m_LightClass->GetDirection(), m_LightClass->GetDiffuseColor(), m_LightClass->GetAmbientColor()
+		, m_Camera->GetPosition(), m_LightClass->GetSpecularColor(), m_LightClass->GetSpecularPower()))
 	{
 		return false;
 	}
