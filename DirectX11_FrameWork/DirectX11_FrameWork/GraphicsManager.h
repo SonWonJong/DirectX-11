@@ -30,5 +30,6 @@ private:
 	class TextureShader* m_TextureShader = nullptr;
 	class LightClass* m_LightClass;
 	class LightShader* m_LightShader;
+	class BitmapClass* m_Bitmap = nullptr;
 };
 

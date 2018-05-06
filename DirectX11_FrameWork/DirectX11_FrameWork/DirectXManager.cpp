@@ -311,6 +311,32 @@ bool DirectXManager::Initialize(int InScreenWidth, int InScreenHeight, bool InVs
 	// 2D 렌더링을위한 직교 투영 행렬을 만듭니다
 	m_OrthoMatrix = XMMatrixOrthographicLH((float)InScreenWidth, (float)InScreenHeight, InScreenNear, InScreenDepth);
 
+	// 이제 2D 렌더링을 위한 Z버퍼를 끄는 두 번째 깊이 스텐실 상태를 만듬 유일한 차이점은
+	// DepthEnable을 false로 설정하면 다른 모든 매개변수는 다른 깊이 스탠실 상태와 동일함.
+	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
+	ZeroMemory(&depthDisabledStencilDesc, sizeof(depthDisabledStencilDesc));
+
+	depthDisabledStencilDesc.DepthEnable = false;
+	depthDisabledStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthDisabledStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	depthDisabledStencilDesc.StencilEnable = true;
+	depthDisabledStencilDesc.StencilReadMask = 0xFF;
+	depthDisabledStencilDesc.StencilWriteMask = 0xFF;
+	depthDisabledStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthDisabledStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	depthDisabledStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthDisabledStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// 장치를 사용하여 상태를 만듬
+	if (FAILED(m_Device->CreateDepthStencilState(&depthDisabledStencilDesc, &m_depthDisabledStencilState)))
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -320,6 +346,12 @@ void DirectXManager::Shutdown()
 	if (m_SwapChain)
 	{
 		m_SwapChain->SetFullscreenState(false, NULL);
+	}
+
+	if (m_depthDisabledStencilState)
+	{
+		m_depthDisabledStencilState->Release();
+		m_depthDisabledStencilState = 0;
 	}
 
 	if (m_RasterState)
@@ -427,4 +459,15 @@ void DirectXManager::GetVideoCardInfo(char* InCardName, int& InMemory)
 {
 	strcpy_s(InCardName, 128, m_VideoCardDescription);
 	InMemory = m_VideoCardMemory;
+}
+
+void DirectXManager::TurnZBufferOn()
+{
+	m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState, 1);
+}
+
+
+void DirectXManager::TurnZBufferOff()
+{
+	m_DeviceContext->OMSetDepthStencilState(m_depthDisabledStencilState, 1);
 }

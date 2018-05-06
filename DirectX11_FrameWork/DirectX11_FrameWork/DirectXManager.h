@@ -22,6 +22,8 @@ public:
 
 	void GetVideoCardInfo(char*, int&);
 
+	void TurnZBufferOn();
+	void TurnZBufferOff();
 private:
 	bool m_VsyncEnabled;
 	char m_VideoCardMemory;
@@ -37,6 +39,7 @@ private:
 	XMMATRIX m_ProjectionMatrix;
 	XMMATRIX m_WorldMatrix;
 	XMMATRIX m_OrthoMatrix;
+	ID3D11DepthStencilState* m_depthDisabledStencilState = nullptr;
 
 };
 

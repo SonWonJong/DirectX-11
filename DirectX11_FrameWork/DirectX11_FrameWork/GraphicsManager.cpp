@@ -7,6 +7,7 @@
 #include "TextureShader.h"
 #include "LightClass.h"
 #include "LightShader.h"
+#include "BitmapClass.h"
 
 GraphicsManager::GraphicsManager()
 {
@@ -95,11 +96,31 @@ bool GraphicsManager::Initialize(int InScreenWidth, int InScreenHeight, HWND InH
 		return false;
 	}
 
+	m_Bitmap = new BitmapClass;
+	if (!m_Bitmap)
+	{
+		return false;
+	}
+
+	// 비트맵 객체 초기화
+	if (!m_Bitmap->Initialize(m_Direct3D->GetDevice(), InScreenWidth, InScreenHeight, L"../DirectX11_FrameWork/Image/seafloor.dds", 255, 255))
+	{
+		MessageBox(InHwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+	
+
 	return true;
 }
 
 void GraphicsManager::Shutdown()
 {
+	if (m_Bitmap)
+	{
+		m_Bitmap->Shutdown();
+		delete m_Bitmap;
+		m_Bitmap = nullptr;
+	}
 
 	if (m_LightClass)
 	{
@@ -167,11 +188,11 @@ bool GraphicsManager::Render()
 	m_Camera->Render();
 
 	// 카메라 및 d3d 객체에서 월드, 뷰 및 투영 행렬을 가져옵니다
-	XMMATRIX WorldMatrix, ViewMatrix, ProjectionMatrix;
+	XMMATRIX WorldMatrix, ViewMatrix, ProjectionMatrix, orthoMatrix, UIWorld;
 	m_Direct3D->GetWorldMatrix(WorldMatrix);
 	m_Camera->GetViewMatrix(ViewMatrix);
 	m_Direct3D->GetProjectionMatrix(ProjectionMatrix);
-
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
 	static float rotation = 0.0f;
 
@@ -180,6 +201,7 @@ bool GraphicsManager::Render()
 	{
 		rotation -= 360.0f;
 	}
+	UIWorld = WorldMatrix;
 	WorldMatrix = XMMatrixRotationY(rotation);
 
 	// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비합니다.
@@ -203,7 +225,21 @@ bool GraphicsManager::Render()
 	{
 		return false;
 	}
-	
+
+	// UI Manager Render로 이동//
+	m_Direct3D->TurnZBufferOff();
+	if (!m_Bitmap->Render(m_Direct3D->GetDeviceContext(), 0, 350))
+	{
+		return false;
+	}
+
+	if (!m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), UIWorld, ViewMatrix, orthoMatrix, m_Bitmap->GetTexture()))
+	{
+		return false;
+	}
+	m_Direct3D->TurnZBufferOn();
+
+
 	// 버퍼의 내용을 화면에 출력
 	m_Direct3D->EndScene();
 
