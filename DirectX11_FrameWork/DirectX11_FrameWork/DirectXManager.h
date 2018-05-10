@@ -24,6 +24,10 @@ public:
 
 	void TurnZBufferOn();
 	void TurnZBufferOff();
+
+	void TurnOnAlphaBlending();
+	void TurnOffAlphaBlending();
+
 private:
 	bool m_VsyncEnabled;
 	char m_VideoCardMemory;
@@ -40,6 +44,8 @@ private:
 	XMMATRIX m_WorldMatrix;
 	XMMATRIX m_OrthoMatrix;
 	ID3D11DepthStencilState* m_depthDisabledStencilState = nullptr;
+	ID3D11BlendState* m_alphaEnableBlendingState = nullptr;
+	ID3D11BlendState* m_alphaDisableBlendingState = nullptr;
 
 };
 

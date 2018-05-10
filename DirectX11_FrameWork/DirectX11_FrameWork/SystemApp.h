@@ -24,6 +24,9 @@ private:
 	HWND m_Hwnd;
 
 	class GraphicsManager* m_Graphics = nullptr;
+	class FpsClass*	m_Fps = nullptr;
+	class CpuClass* m_Cpu = nullptr;
+	class TimerClass* m_Timer = nullptr;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

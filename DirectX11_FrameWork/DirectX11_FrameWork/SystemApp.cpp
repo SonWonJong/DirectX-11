@@ -2,6 +2,9 @@
 #include "SystemApp.h"
 #include "InputManager.h"
 #include "GraphicsManager.h"
+#include "FpsClass.h"
+#include "CpuClass.h"
+#include "TimerClass.h"
 
 SystemApp::SystemApp()
 {
@@ -35,11 +38,36 @@ bool SystemApp::Initialize()
 		return false;
 	}
 
+	m_Fps = new FpsClass;
+	m_Cpu = new CpuClass;
+	m_Timer = new TimerClass;
+
+	m_Fps->Initialize();
+	m_Cpu->Initialize();
+	m_Timer->Initialize();
+
 	return m_Graphics->Initialize(ScreenWidth, ScreenHeight, m_Hwnd);
 }
 
 void SystemApp::Shutdown()
 {
+	if (m_Timer)
+	{
+		delete m_Timer;
+		m_Timer = nullptr;
+	}
+
+	if (m_Cpu)
+	{
+		m_Cpu->Shutdown();
+		delete m_Cpu;
+		m_Cpu = nullptr;
+	}
+	if (m_Fps)
+	{
+		delete m_Fps;
+		m_Fps = nullptr;
+	}
 	if (m_Graphics)
 	{
 		m_Graphics->Shutdown();
@@ -78,6 +106,13 @@ void SystemApp::Run()
 
 bool SystemApp::Frame()
 {
+	m_Timer->Frame();
+	m_Cpu->Frame();
+	m_Fps->Frame();
+
+	m_Graphics->SetFps(m_Fps->GetFps());
+	m_Graphics->SetCpu(m_Cpu->GetCpuPercentage());
+
 	if (!InputManager::GetInstance().Frame())
 	{
 		return false;

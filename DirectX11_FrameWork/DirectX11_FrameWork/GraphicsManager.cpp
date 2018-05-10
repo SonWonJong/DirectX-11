@@ -8,6 +8,8 @@
 #include "LightClass.h"
 #include "LightShader.h"
 #include "BitmapClass.h"
+#include "TextClass.h"
+#include "InputManager.h"
 
 GraphicsManager::GraphicsManager()
 {
@@ -110,11 +112,42 @@ bool GraphicsManager::Initialize(int InScreenWidth, int InScreenHeight, HWND InH
 	}
 	
 
+	// 카메라 포지션 설정
+	XMMATRIX baseViewMatrix;
+	//m_Camera->SetPosition(0.0f, 0.0f, -1.0f);
+	m_Camera->Render();
+	m_Camera->GetViewMatrix(baseViewMatrix);
+
+	// m_Text 객체 생성
+	m_Text = new TextClass;
+	if (!m_Text)
+	{
+		return false;
+	}
+
+	// m_Text 객체 초기화
+	if (!m_Text->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), InHwnd, InScreenWidth, InScreenHeight, baseViewMatrix))
+	{
+		MessageBox(InHwnd, L"Could not initialize the text object.", L"Error", MB_OK);
+		return false;
+	}
+
+
+	m_fps = 0;
+	m_cpu = 0;
 	return true;
 }
 
 void GraphicsManager::Shutdown()
 {
+	// m_Text 객체 반환
+	if (m_Text)
+	{
+		m_Text->Shutdown();
+		delete m_Text;
+		m_Text = 0;
+	}
+
 	if (m_Bitmap)
 	{
 		m_Bitmap->Shutdown();
@@ -177,6 +210,31 @@ void GraphicsManager::Shutdown()
 
 bool GraphicsManager::Frame()
 {
+	// Mouse Pos
+	//int MouseX = 0, MouseY = 0;
+
+	//InputManager::GetInstance().GetMouseLocation(MouseX, MouseY);
+
+	//if (!m_Text->SetMousePosition(MouseX, MouseY, m_Direct3D->GetDeviceContext()))
+	//{
+	//	return false;
+	//}
+	// Mouse Pos
+
+
+
+	if (!m_Text->SetFps(m_fps, m_Direct3D->GetDeviceContext()))
+	{
+		return false;
+	}
+
+	if (!m_Text->SetCpu(m_cpu, m_Direct3D->GetDeviceContext()))
+	{
+		return false;
+	}
+
+	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+
 	return Render();
 }
 
@@ -228,6 +286,8 @@ bool GraphicsManager::Render()
 
 	// UI Manager Render로 이동//
 	m_Direct3D->TurnZBufferOff();
+
+
 	if (!m_Bitmap->Render(m_Direct3D->GetDeviceContext(), 0, 350))
 	{
 		return false;
@@ -237,6 +297,17 @@ bool GraphicsManager::Render()
 	{
 		return false;
 	}
+
+	/////////////////Alpha
+	m_Direct3D->TurnOnAlphaBlending();
+	if (!m_Text->Render(m_Direct3D->GetDeviceContext(), UIWorld, orthoMatrix))
+	{
+		return false;
+	}
+	m_Direct3D->TurnOffAlphaBlending();
+	/////////////////Alpha
+
+
 	m_Direct3D->TurnZBufferOn();
 
 

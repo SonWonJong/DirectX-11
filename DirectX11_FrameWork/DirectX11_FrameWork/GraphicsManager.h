@@ -17,6 +17,8 @@ public:
 	void Shutdown();
 	bool Frame();
 
+	void SetFps(int InFps) { m_fps = InFps; }
+	void SetCpu(int InCpu) { m_cpu = InCpu; }
 private:
 	bool Render();
 
@@ -31,5 +33,9 @@ private:
 	class LightClass* m_LightClass;
 	class LightShader* m_LightShader;
 	class BitmapClass* m_Bitmap = nullptr;
+	class TextClass* m_Text = nullptr;
+
+	int m_fps;
+	int m_cpu;
 };
 

@@ -14,6 +14,8 @@ bool InputManager::Initialize(HINSTANCE InHinstance, HWND InHwnd, int InScreenWi
 {
 	m_ScreenWidth = InScreenWidth;
 	m_ScreenHeight = InScreenHeight;
+	m_MouseX = m_ScreenWidth / 2;
+	m_MouseY = m_ScreenHeight / 2;
 
 	// Direct Input 인터페이스를 초기화 합니다.
 	HRESULT result = DirectInput8Create(InHinstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_DirectInput, NULL);
