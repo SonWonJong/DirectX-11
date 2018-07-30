@@ -10,6 +10,8 @@
 #include "BitmapClass.h"
 #include "TextClass.h"
 #include "InputManager.h"
+#include "FrustumClass.h"
+#include "ModelListClass.h"
 
 GraphicsManager::GraphicsManager()
 {
@@ -42,7 +44,7 @@ bool GraphicsManager::Initialize(int InScreenWidth, int InScreenHeight, HWND InH
 		return false;
 
 	// m_Model 객체 초기화
-	if (!m_Model->Initialize(m_Direct3D->GetDevice(), L"../DirectX11_FrameWork/Model/cube.txt", L"../DirectX11_FrameWork/Image/seafloor.dds"))
+	if (!m_Model->Initialize(m_Direct3D->GetDevice(), L"../DirectX11_FrameWork/Model/sphere.txt", L"../DirectX11_FrameWork/Image/seafloor.dds"))
 	{
 		MessageBox(InHwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
@@ -135,6 +137,25 @@ bool GraphicsManager::Initialize(int InScreenWidth, int InScreenHeight, HWND InH
 
 	m_fps = 0;
 	m_cpu = 0;
+
+
+	m_ModelList = new ModelListClass;
+	if (!m_ModelList)
+	{
+		return false;
+	}
+
+	if (!m_ModelList->Initialize(50))
+	{
+		return false;
+	}
+
+	m_Frustum = new FrustumClass;
+	if (!m_Frustum)
+	{
+		return false;
+	}
+	
 	return true;
 }
 
@@ -206,6 +227,20 @@ void GraphicsManager::Shutdown()
 		delete m_Direct3D;
 		m_Direct3D = nullptr;
 	}
+
+	if (m_ModelList)
+	{
+		m_ModelList->Shutdown();
+		delete m_ModelList;
+		m_ModelList = nullptr;
+	}
+
+
+	if (m_Frustum)
+	{
+		delete m_Frustum;
+		m_Frustum = nullptr;
+	}
 }
 
 bool GraphicsManager::Frame()
@@ -238,7 +273,7 @@ bool GraphicsManager::Frame()
 	return Render();
 }
 
-bool GraphicsManager::Render()
+bool GraphicsManager::CubeAndTextureRender()
 {
 	m_Direct3D->BeginScene(0.0f, 1.0f, 1.0f, 1.0f);
 
@@ -315,4 +350,119 @@ bool GraphicsManager::Render()
 	m_Direct3D->EndScene();
 
 	return true;
+}
+bool GraphicsManager::FrustumRender()
+{
+	m_Direct3D->BeginScene(0.0f, 1.0f, 1.0f, 1.0f);
+
+	// 카메라의 위치에 따라 뷰 행렬을 생성합니다
+	m_Camera->Render();
+
+	// 카메라 및 d3d 객체에서 월드, 뷰 및 투영 행렬을 가져옵니다
+	XMMATRIX WorldMatrix, ViewMatrix, ProjectionMatrix, orthoMatrix, UIWorld;
+	m_Direct3D->GetWorldMatrix(WorldMatrix);
+	m_Camera->GetViewMatrix(ViewMatrix);
+	m_Direct3D->GetProjectionMatrix(ProjectionMatrix);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+	m_Frustum->ConstructFrustum(SCREEN_DEPTH, ProjectionMatrix, ViewMatrix);
+
+
+	// 렌더될 모델의 수를 얻음
+	int modelCount = m_ModelList->GetModelCount();
+
+	// 렌더될 모델의 개수를 초기화한다.
+	int renderCount = 0;
+
+	// 모든 모델을 살피고 카메라 뷰에서 볼수 있는 경우에만 렌더링한다.
+	float positionX, positionY, positionZ;
+	float radius = 1.0f; // 구의 반지름을 1.0f로 설정
+	XMFLOAT4 color;
+	for (int index = 0; index < modelCount; index++)
+	{
+		// 인덱스에서 구형 모델의 위치와 색상을 가져온다.
+		m_ModelList->GetData(index, positionX, positionY, positionZ, color);
+
+		// 구형 모델이 뷰 Frustum에 있는지 확인한다.
+		if (m_Frustum->CheckSphere(positionX, positionY, positionZ, radius))
+		{
+			// 모델을 렌더링할 위치로 이동
+			WorldMatrix = XMMatrixTranslation(positionX, positionY, positionZ);
+
+			//모델 버텍스와 인덱스 버퍼를 그래픽 파이프라인에 배치하여 드로우잉 준비
+			m_Model->Render(m_Direct3D->GetDeviceContext());
+
+			// 라이트 쉐이더를 사용하여 모델을 렌더링합니다.
+			m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount()
+				, WorldMatrix, ViewMatrix, ProjectionMatrix, m_Model->GetTexture()
+				, m_LightClass->GetDirection(), m_LightClass->GetDiffuseColor(), m_LightClass->GetAmbientColor()
+				, m_Camera->GetPosition(), m_LightClass->GetSpecularColor(), m_LightClass->GetSpecularPower());
+
+			m_Direct3D->GetWorldMatrix(WorldMatrix);
+
+			// 이 모델이 렌더링 되었기 때문에 프레임의 수를 늘림
+			renderCount++;
+		}
+	}
+
+
+
+	// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비합니다.
+	m_Model->Render(m_Direct3D->GetDeviceContext());
+
+	////// 색상 쉐이더를 사용하여 모델을 렌더링
+	//if (!m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), WorldMatrix, ViewMatrix, ProjectionMatrix))
+	//{
+	//	return false;
+	//}
+
+	//if (!m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), WorldMatrix, ViewMatrix, ProjectionMatrix, m_Model->GetTexture()))
+	//{
+	//	return false;
+	//}
+
+	//if (!m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount()
+	//	, WorldMatrix, ViewMatrix, ProjectionMatrix, m_Model->GetTexture()
+	//	, m_LightClass->GetDirection(), m_LightClass->GetDiffuseColor(), m_LightClass->GetAmbientColor()
+	//	, m_Camera->GetPosition(), m_LightClass->GetSpecularColor(), m_LightClass->GetSpecularPower()))
+	//{
+	//	return false;
+	//}
+
+	// UI Manager Render로 이동//
+	m_Direct3D->TurnZBufferOff();
+
+
+	if (!m_Bitmap->Render(m_Direct3D->GetDeviceContext(), 0, 350))
+	{
+		return false;
+	}
+
+	//if (!m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), UIWorld, ViewMatrix, orthoMatrix, m_Bitmap->GetTexture()))
+	//{
+	//	return false;
+	//}
+
+	/////////////////Alpha
+	m_Direct3D->TurnOnAlphaBlending();
+	//if (!m_Text->Render(m_Direct3D->GetDeviceContext(), UIWorld, orthoMatrix))
+	//{
+	//	return false;
+	//}
+	m_Direct3D->TurnOffAlphaBlending();
+	/////////////////Alpha
+
+
+	m_Direct3D->TurnZBufferOn();
+
+
+	// 버퍼의 내용을 화면에 출력
+	m_Direct3D->EndScene();
+
+	return true;
+}
+
+bool GraphicsManager::Render()
+{
+	return FrustumRender();
 }

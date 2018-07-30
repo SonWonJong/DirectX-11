@@ -22,6 +22,9 @@ public:
 private:
 	bool Render();
 
+	bool CubeAndTextureRender();
+	bool FrustumRender();
+
 private:
 	class DirectXManager * m_Direct3D = nullptr;
 	class CameraClass* m_Camera = nullptr;
@@ -34,6 +37,8 @@ private:
 	class LightShader* m_LightShader;
 	class BitmapClass* m_Bitmap = nullptr;
 	class TextClass* m_Text = nullptr;
+	class ModelListClass* m_ModelList = nullptr;
+	class FrustumClass* m_Frustum = nullptr;
 
 	int m_fps;
 	int m_cpu;
